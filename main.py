@@ -1,10 +1,11 @@
-from flask import Flask, escape, request
+import os
+import sys
 
-app = Flask(__name__)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-@app.route('/')
-def hello():
-    name = request.args.get("name", "World")
-    return f'Hello, {escape(name)}!'
+from app import create_app
 
+app = create_app()
 
+if __name__ == '__main__':
+    app.run()
