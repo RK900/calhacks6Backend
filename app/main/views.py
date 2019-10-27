@@ -84,7 +84,7 @@ def create_user():
         db.session.commit()
     user = User(username=username, phone_number=phone_number)
 
-    rand_ind, gender = random.randint(100), random.randint(2)
+    rand_ind, gender = random.randint(0, 99), random.randint(0, 1)
     if gender == 1:
         url = "https://randomuser.me/api/portraits/thumb/men/" + str(rand_ind) + ".jpg"
     else:
