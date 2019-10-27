@@ -2,6 +2,11 @@
 import datetime
 import os
 
+secretkey = ""
+with open("secretkey.txt", 'r') as sk:
+    content = sk.readlines()
+    secretkey = content[0]
+
 from dotenv import load_dotenv, find_dotenv
 
 basedir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
@@ -21,7 +26,7 @@ class Config(object):
     DEBUG = False
 
     SECRET_KEY = os.environ.get("SECRET_KEY",
-                                "068cbbfef9177f2502d453724bbe61808cff47096cbadbe4a22676a387a1332d3a9760fcee26412dc96920ba92c15851581952309f1ca15700d8d89b09072ce1")
+                                secretkey)
     expires = datetime.timedelta(days=30)
     SQLALCHEMY_TRACK_MODIFICATIONS = None
     SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DB')
