@@ -210,7 +210,7 @@ def haversine(lon1, lat1, lon2, lat2):
     on the earth (specified in decimal degrees)
     """
     if lon1 is None or lat1 is None or lon2 is None or lat2 is None:
-        return float('nan')
+        return "NaN"
     # convert decimal degrees to radians
     lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
     # haversine formula
@@ -220,4 +220,4 @@ def haversine(lon1, lat1, lon2, lat2):
     c = 2 * asin(sqrt(a))
     # Radius of earth in kilometers is 6371
     km = 6371 * c
-    return km / 1000
+    return str(km / 1000)
