@@ -12,6 +12,12 @@ def home():
     return "Server is up. LEGO LEGO"
 
 
+@main.route("/get_all_users")
+def friends():
+    users = User.query.all()
+    return jsonify({"friends": [{"username": user.username, "id": user.id} for user in users]})
+
+
 @main.route("/create_user", methods=["POST", "GET"])
 def create_user():
     data = request.json
