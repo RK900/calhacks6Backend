@@ -1,3 +1,4 @@
+import math
 from datetime import datetime
 
 from flask import jsonify, request
@@ -44,7 +45,7 @@ def save_user_loc():
     lat = data["current_user_lat"]
     lon = data["current_user_long"]
 
-    user = User.query.get(id=id)
+    user = User.query.get(id)
     user.lat = float(lat)
     user.lon = float(lon)
     db.session.commit()
@@ -58,16 +59,17 @@ def request_user_loc():
     lat = data["current_user_lat"]
     lon = data["current_user_long"]
 
-    user = User.query.get(id=id)
+    user = User.query.get(id)
     user.lat = float(lat)
     user.lon = float(lon)
     db.session.commit()
 
     id = data["requested_user_id"]
-    requested_user = User.query.get(id=id)
+    requested_user = User.query.get(id)
 
-    return {"requested_user_lat": requested_user.current_user_lat,
-            "requested_user_long": requested_user.current_user_long}
+    return {"requested_user_lat": requested_user.lat,
+            "requested_user_long": requested_user.lon,
+            "bearing": calc_bearing(user.lat, user.lon, requested_user.lat, requested_user.lon)}
 
 
 @main.route("/get_path", methods=["POST"])
@@ -86,7 +88,6 @@ def get_path():
             "lat" : 33.8054699,
             "lng" : -117.9267488
          },
-         "html_instructions" : "Head \u003cb\u003ewest\u003c/b\u003e toward \u003cb\u003eDisneyland Dr\u003c/b\u003e",
          "start_location" : {
             "lat" : 33.80545170000001,
             "lng" : -117.9242185
@@ -95,10 +96,10 @@ def get_path():
     """
     data = request.json
     id = data["current_user_id"]
-    user = User.query.get(id=id)
+    user = User.query.get(id)
 
     id = data["requested_user_id"]
-    r_user = User.query.get(id=id)
+    r_user = User.query.get(id)
 
     convert_dict = lambda x, y: {"lat": x, "lng": y}
     directions_result = gmaps.directions(convert_dict(user.lat, user.lon),
@@ -113,3 +114,23 @@ def get_path():
     total_eta = leg["duration"]["text"]
     steps = leg["steps"]
     return jsonify({"total_distance": total_distance, "total_eta": total_eta, "steps": steps})
+
+
+def calc_bearing(lat1, lon1, lat2, lon2):
+    startLat = math.radians(lat1)
+    startLong = math.radians(lon1)
+    endLat = math.radians(lat2)
+    endLong = math.radians(lon2)
+
+    dLong = endLong - startLong
+
+    dPhi = math.log(math.tan(endLat / 2.0 + math.pi / 4.0) / math.tan(startLat / 2.0 + math.pi / 4.0))
+    if abs(dLong) > math.pi:
+        if dLong > 0.0:
+            dLong = -(2.0 * math.pi - dLong)
+        else:
+            dLong = (2.0 * math.pi + dLong)
+
+    bearing = (math.degrees(math.atan2(dLong, dPhi)) + 360.0) % 360.0;
+
+    return bearing

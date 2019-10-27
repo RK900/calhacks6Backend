@@ -14,5 +14,10 @@ class User(db.Model):
     def get_dic(self):
         return {
             "username": self.username,
-            "phone_number": self.id
+            "phone_number": self.id,
+            "lat": self.lat,
+            "lon": self.lon
         }
+
+    def __repr__(self):
+        return "Username: {}, Phone Number: {}, Lat: {}, Lon: {}".format(self.username, self.id, self.lat, self.lon)
