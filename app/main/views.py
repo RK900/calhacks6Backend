@@ -87,9 +87,9 @@ def create_user():
 
     rand_ind, gender = random.randint(100), random.randint(2)
     if gender == 1:
-        url = "randomuser.me/api/portraits/thumb/men/" + str(rand_ind) + ".jpg"
+        url = "https://randomuser.me/api/portraits/thumb/men/" + str(rand_ind) + ".jpg"
     else:
-        url = "randomuser.me/api/portraits/thumb/women/" + str(rand_ind) + ".jpg"
+        url = "https://randomuser.me/api/portraits/thumb/women/" + str(rand_ind) + ".jpg"
 
     user.image = url
 
