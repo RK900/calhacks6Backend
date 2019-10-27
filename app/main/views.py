@@ -68,7 +68,7 @@ def save_user_loc():
 
     user = User.query.get(id)
     if user is None:
-        return jsonify({"status": 200, "msg": "User not initialized to a valid person"})
+        return jsonify({"status": 300, "msg": "User not initialized to a valid person"})
 
     user.lat = float(lat)
     user.lon = float(lon)
