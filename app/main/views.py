@@ -15,7 +15,10 @@ def home():
 @main.route("/get_all_users")
 def friends():
     users = User.query.all()
-    return jsonify({"friends": [{"username": user.username, "id": user.id} for user in users]})
+    return jsonify({"friends": [{"username": user.username,
+                                 "id": user.id,
+                                 "lat": user.lat,
+                                 "lon": user.lon} for user in users]})
 
 
 @main.route("/create_user", methods=["POST", "GET"])
@@ -34,6 +37,7 @@ def create_user():
 @main.route("/save_user_loc", methods=["POST", "GET"])
 def save_user_loc():
     data = request.json
+
     id = data["current_user_id"]
     lat = data["current_user_lat"]
     lon = data["current_user_long"]
@@ -66,6 +70,27 @@ def request_user_loc():
 
 @main.route("/get_path", methods=["POST"])
 def get_path():
+    """
+     {
+         "distance" : {
+            "text" : "0.4 mi",
+            "value" : 609
+         },
+         "duration" : {
+            "text" : "3 mins",
+            "value" : 160
+         },
+         "end_location" : {
+            "lat" : 33.8054699,
+            "lng" : -117.9267488
+         },
+         "html_instructions" : "Head \u003cb\u003ewest\u003c/b\u003e toward \u003cb\u003eDisneyland Dr\u003c/b\u003e",
+         "start_location" : {
+            "lat" : 33.80545170000001,
+            "lng" : -117.9242185
+         },
+      },
+    """
     data = request.json
     id = data["current_user_id"]
     user = User.query.get(id=id)
