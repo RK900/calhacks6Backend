@@ -61,7 +61,8 @@ def friends():
     data = request.json
     id = data["current_user_id"]
     current_user = User.query.get(id)
-
+    if current_user:
+        return jsonify({"friends": []})
     users = User.query.all()
     if "friends" in data:
         users = current_user.followed.all()
