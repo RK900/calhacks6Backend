@@ -29,7 +29,10 @@ def create_user():
     data = request.json
     username = data["username"]
     phone_number = data["phone_number"]
-
+    user = User.query.filter_by(username=username).first()
+    if user:
+        db.session.delete(user)
+        db.session.commit()
     user = User(username=username, phone_number=phone_number)
     db.session.add(user)
     db.session.commit()
