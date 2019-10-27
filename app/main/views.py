@@ -71,7 +71,8 @@ def friends():
                                  "id": user.id,
                                  "lat": user.lat,
                                  "lon": user.lon,
-                                 "dist": haversine((current_user.lat, current_user.lon), (user.lat, user.lon)),
+                                 "dist": haversine((current_user.lat, current_user.lon), (
+                                 user.lat, user.lon)) if current_user.lat is not None and user.lat is not None else -1,
                                  "image": user.image} for user in users if user and user.id != current_user.id]})
 
 
@@ -138,7 +139,8 @@ def request_user_loc():
     return {"requested_user_lat": requested_user.lat,
             "requested_user_long": requested_user.lon,
             "bearing": calc_bearing(user.lat, user.lon, requested_user.lat, requested_user.lon),
-            "dist": haversine((user.lat, user.lat), (requested_user.lat, requested_user.lon)), }
+            "dist": haversine((user.lat, user.lon),
+                              (requested_user.lat, requested_user.lon)) if user.lat is not None and requested_user.lat is not None else -1, }
 
 
 @main.route("/get_path", methods=["POST"])
