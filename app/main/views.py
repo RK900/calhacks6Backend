@@ -53,7 +53,7 @@ def request_user_loc():
             "requested_user_long": requested_user.current_user_long}
 
 
-@main.route("/get_path")
+@main.route("/get_path", methods=["POST"])
 def get_path():
     data = request.json
     id = data["current_user_id"]
@@ -63,16 +63,16 @@ def get_path():
     r_user = User.query.get(id=id)
 
     gmaps = googlemaps.Client(key="AIzaSyA20r8IsvurS_CC9iUIjgej5s1H__o7kdg")
-    convert_dict = lambda x,y: {"lat": x, "lng": y}
-    # Geocoding an address
-    # geocode_result = gmaps.geocode(str(user.))
-
-    # Look up an address with reverse geocoding
-    # reverse_geocode_result = gmaps.reverse_geocode((user.lat, user.long))
-    # reverse_geocode_result_2 = gmaps.reverse_geocode((r_user.lat, r_user.long))
-
-    # Request directions via public transit
+    convert_dict = lambda x, y: {"lat": x, "lng": y}
     directions_result = gmaps.directions(convert_dict(user.lat, user.long),
                                          convert_dict(r_user.lat, r_user.long),
                                          mode="walking",
                                          departure_time=datetime.now())
+    if not directions_result:
+        return jsonify({"status": 400})
+
+    leg = directions_result[0]
+    total_distance = leg["distance"]["text"]
+    total_eta = leg["duration"]["text"]
+    steps = leg["steps"]
+    return jsonify({"total_distance": total_distance, "total_eta": total_eta, "steps": steps})
