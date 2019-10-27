@@ -13,11 +13,29 @@ def home():
     return "Server is up. LEGO LEGO"
 
 
+@main.route("/add_friend")
+def add_friend():
+    data = request.json
+    id = data["current_user_id"]
+    friend_username = data["friend"]
+
+    user = User.query.get(id)
+    friend = User.query.filter_by(username=friend_username).first()
+
+    user.follow(friend)
+    friend.follow(user)
+    db.session.commit()
+    return jsonify({"status": 200, "msg": "added friend"})
+
+
 @main.route("/get_all_users")
 def friends():
     data = request.json
     id = data["current_user_id"]
     users = User.query.all()
+    if "friends" in data:
+        user = User.query.get(id)
+        users = user.followed.all()
     return jsonify({"friends": [{"username": user.username,
                                  "id": user.id,
                                  "lat": user.lat,
