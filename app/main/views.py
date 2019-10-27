@@ -3,7 +3,7 @@ import random
 from datetime import datetime
 
 from flask import jsonify, request
-from haversine import haversine
+from haversine import haversine, Unit
 
 from app import db, gmaps
 from app.main import main
@@ -57,6 +57,13 @@ def add_friend():
     return jsonify({"status": 200, "msg": "added friend"})
 
 
+def calc_haversine(current_user, user):
+    if current_user.lat is None or user.lat is None:
+        return -1
+    return haversine((current_user.lat, current_user.lon), (
+        user.lat, user.lon), unit=Unit.MILES)
+
+
 @main.route("/get_all_users", methods=["POST"])
 def friends():
     data = request.json
@@ -71,8 +78,7 @@ def friends():
                                  "id": user.id,
                                  "lat": user.lat,
                                  "lon": user.lon,
-                                 "dist": haversine((current_user.lat, current_user.lon), (
-                                 user.lat, user.lon)) if current_user.lat is not None and user.lat is not None else -1,
+                                 "dist": calc_haversine(user, current_user),
                                  "image": user.image} for user in users if user and user.id != current_user.id]})
 
 
@@ -139,8 +145,7 @@ def request_user_loc():
     return {"requested_user_lat": requested_user.lat,
             "requested_user_long": requested_user.lon,
             "bearing": calc_bearing(user.lat, user.lon, requested_user.lat, requested_user.lon),
-            "dist": haversine((user.lat, user.lon),
-                              (requested_user.lat, requested_user.lon)) if user.lat is not None and requested_user.lat is not None else -1, }
+            "dist": calc_haversine(user, requested_user)}
 
 
 @main.route("/get_path", methods=["POST"])
@@ -203,6 +208,6 @@ def calc_bearing(lat1, lon1, lat2, lon2):
         else:
             dLong = (2.0 * math.pi + dLong)
 
-    bearing = (math.degrees(math.atan2(dLong, dPhi)) + 360.0) % 360.0;
+    bearing = (math.degrees(math.atan2(dLong, dPhi)) + 360.0) % 360.0
 
     return bearing
