@@ -14,11 +14,13 @@ def home():
 
 @main.route("/get_all_users")
 def friends():
+    data = request.json
+    id = data["current_user_id"]
     users = User.query.all()
     return jsonify({"friends": [{"username": user.username,
                                  "id": user.id,
                                  "lat": user.lat,
-                                 "lon": user.lon} for user in users]})
+                                 "lon": user.lon} for user in users if user.id != id]})
 
 
 @main.route("/create_user", methods=["POST", "GET"])
