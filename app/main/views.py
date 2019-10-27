@@ -67,10 +67,13 @@ def save_user_loc():
     lon = data["current_user_long"]
 
     user = User.query.get(id)
+    if user is None:
+        return jsonify({"status": 200, "msg": "User not initialized to a valid person"})
+
     user.lat = float(lat)
     user.lon = float(lon)
     db.session.commit()
-    return jsonify({"status": 200})
+    return jsonify({"status": 200, "msg": "Received user's location"})
 
 
 @main.route("/request_user_loc", methods=["POST", "GET"])
