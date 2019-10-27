@@ -7,6 +7,11 @@ from app.main import main
 from app.models.user import User
 
 
+@main.route("/")
+def home():
+    return "Server is up. LEGO LEGO"
+
+
 @main.route("/create_user", methods=["POST", "GET"])
 def create_user():
     data = request.json
