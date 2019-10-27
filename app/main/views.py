@@ -209,6 +209,8 @@ def haversine(lon1, lat1, lon2, lat2):
     Calculate the great circle distance between two points
     on the earth (specified in decimal degrees)
     """
+    if lon1 is None or lat1 is None or lon2 is None or lat2 is None:
+        return float('nan')
     # convert decimal degrees to radians
     lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
     # haversine formula
