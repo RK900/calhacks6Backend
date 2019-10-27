@@ -101,14 +101,14 @@ def get_path():
     r_user = User.query.get(id=id)
 
     convert_dict = lambda x, y: {"lat": x, "lng": y}
-    directions_result = gmaps.directions(convert_dict(user.lat, user.long),
-                                         convert_dict(r_user.lat, r_user.long),
+    directions_result = gmaps.directions(convert_dict(user.lat, user.lon),
+                                         convert_dict(r_user.lat, r_user.lon),
                                          mode="walking",
                                          departure_time=datetime.now())
     if not directions_result:
         return jsonify({"status": 400})
 
-    leg = directions_result[0]
+    leg = directions_result[0]["legs"][0]
     total_distance = leg["distance"]["text"]
     total_eta = leg["duration"]["text"]
     steps = leg["steps"]
