@@ -137,7 +137,7 @@ def request_user_loc():
     return {"requested_user_lat": requested_user.lat,
             "requested_user_long": requested_user.lon,
             "bearing": calc_bearing(user.lat, user.lon, requested_user.lat, requested_user.lon),
-            "dist": haversine(user.lon, user.lat, user.lat, user.lon),}
+            "dist": haversine(user.lon, user.lat, user.lat, user.lon), }
 
 
 @main.route("/get_path", methods=["POST"])
@@ -224,4 +224,4 @@ def haversine(lon1, lat1, lon2, lat2):
     c = 2 * asin(sqrt(a))
     # Radius of earth in kilometers is 6371
     km = 6371 * c
-    return km / 1000
+    return km * 1000 * 0.0006213712
