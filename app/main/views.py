@@ -15,7 +15,7 @@ def home():
     return "Server is up. LEGO LEGO"
 
 
-@main.route("/add_message")
+@main.route("/add_message", methods=["POST"])
 def add_message():
     data = request.json
     id = data["current_user_id"]
@@ -30,7 +30,7 @@ def add_message():
     return jsonify({"status": 200, "msg": "Updated message"})
 
 
-@main.route("/get_messages")
+@main.route("/get_messages", methods=["POST"])
 def message():
     data = request.json
     id = data["current_user_id"]
@@ -57,7 +57,7 @@ def add_friend():
     return jsonify({"status": 200, "msg": "added friend"})
 
 
-@main.route("/get_all_users")
+@main.route("/get_all_users", methods=["POST"])
 def friends():
     data = request.json
     id = data["current_user_id"]
@@ -70,7 +70,7 @@ def friends():
                                  "id": user.id,
                                  "lat": user.lat,
                                  "lon": user.lon,
-                                 "distance": haversine(current_user.lon, current_user.lat, user.lat, user.lon),
+                                 "dist": haversine(current_user.lon, current_user.lat, user.lat, user.lon),
                                  "image": user.image} for user in users if user.id != current_user.id]})
 
 
