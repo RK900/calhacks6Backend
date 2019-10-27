@@ -78,6 +78,8 @@ def friends():
 def create_user():
     data = request.json
     username = data["username"]
+    if username == "":
+        return jsonify({"id": -1, "status": 200})
     phone_number = data["phone_number"]
     user = User.query.filter_by(username=username).first()
     if user:
