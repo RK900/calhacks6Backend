@@ -1,11 +1,13 @@
 import math
 from datetime import datetime
 
+import requests
 from flask import jsonify, request
 
 from app import db, gmaps
 from app.main import main
-from app.models.user import User
+from app.models.user import User, Messages
+import random
 
 
 @main.route("/")
@@ -13,7 +15,34 @@ def home():
     return "Server is up. LEGO LEGO"
 
 
-@main.route("/add_friend")
+@main.route("/add_message")
+def add_message():
+    data = request.json
+    id = data["current_user_id"]
+    other_user_id = data["requested_user_id"]
+    msg = data["msg"]
+
+    user = User.query.get(id)
+    request_user = User.query.get(other_user_id)
+    message = Messages(msg=msg, sender_id=user.id, receiver_id=request_user.id)
+    db.session.add(message)
+    db.session.commit()
+    return jsonify({"status": 200, "msg": "Updated message"})
+
+
+@main.route("/get_messages")
+def message():
+    data = request.json
+    id = data["current_user_id"]
+    other_user_id = data["current_user_id"]
+
+    user = User.query.get(id)
+    request_user = User.query.get(other_user_id)
+
+    return jsonify({"messages": user.get_messages(request_user), "status": 200})
+
+
+@main.route("/add_friend", methods=["POST", "GET"])
 def add_friend():
     data = request.json
     id = data["current_user_id"]
@@ -32,14 +61,17 @@ def add_friend():
 def friends():
     data = request.json
     id = data["current_user_id"]
+    current_user = User.query.get(id)
+
     users = User.query.all()
     if "friends" in data:
-        user = User.query.get(id)
-        users = user.followed.all()
+        users = current_user.followed.all()
     return jsonify({"friends": [{"username": user.username,
                                  "id": user.id,
                                  "lat": user.lat,
-                                 "lon": user.lon} for user in users if user.id != id]})
+                                 "lon": user.lon,
+                                 "distance": haversine(current_user.lon, current_user.lat, user.lat, user.lon),
+                                 "image": user.image} for user in users if user.id != current_user.id]})
 
 
 @main.route("/create_user", methods=["POST", "GET"])
@@ -52,6 +84,15 @@ def create_user():
         db.session.delete(user)
         db.session.commit()
     user = User(username=username, phone_number=phone_number)
+
+    rand_ind, gender = random.randint(100), random.randint(2)
+    if gender == 1:
+        url = "randomuser.me/api/portraits/thumb/men/" + str(rand_ind) + ".jpg"
+    else:
+        url = "randomuser.me/api/portraits/thumb/women/" + str(rand_ind) + ".jpg"
+
+    user.image = url
+
     db.session.add(user)
     db.session.commit()
 
@@ -137,7 +178,8 @@ def get_path():
     total_distance = leg["distance"]["text"]
     total_eta = leg["duration"]["text"]
     steps = leg["steps"]
-    return jsonify({"total_distance": total_distance, "total_eta": total_eta, "steps": steps})
+
+    return jsonify({"total_distance": total_distance, "total_eta": total_eta, "steps": steps, "landmarks": []})
 
 
 def calc_bearing(lat1, lon1, lat2, lon2):
@@ -158,3 +200,23 @@ def calc_bearing(lat1, lon1, lat2, lon2):
     bearing = (math.degrees(math.atan2(dLong, dPhi)) + 360.0) % 360.0;
 
     return bearing
+
+
+from math import radians, cos, sin, asin, sqrt
+
+
+def haversine(lon1, lat1, lon2, lat2):
+    """
+    Calculate the great circle distance between two points
+    on the earth (specified in decimal degrees)
+    """
+    # convert decimal degrees to radians
+    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+    # haversine formula
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+    a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
+    c = 2 * asin(sqrt(a))
+    # Radius of earth in kilometers is 6371
+    km = 6371 * c
+    return km
