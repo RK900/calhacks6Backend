@@ -28,8 +28,8 @@ def save_user_loc():
     lon = data["current_user_long"]
 
     user = User.query.get(id=id)
-    user.lat = lat
-    user.lon = lon
+    user.lat = float(lat)
+    user.lon = float(lon)
     db.session.commit()
     return jsonify({"status": 200})
 
@@ -42,8 +42,8 @@ def request_user_loc():
     lon = data["current_user_long"]
 
     user = User.query.get(id=id)
-    user.lat = lat
-    user.lon = lon
+    user.lat = float(lat)
+    user.lon = float(lon)
     db.session.commit()
 
     id = data["requested_user_id"]
@@ -56,18 +56,23 @@ def request_user_loc():
 @main.route("/get_path")
 def get_path():
     data = request.json
+    id = data["current_user_id"]
+    user = User.query.get(id=id)
 
-    gmaps = googlemaps.Client(key='Add Your Key here')
+    id = data["requested_user_id"]
+    r_user = User.query.get(id=id)
 
+    gmaps = googlemaps.Client(key="AIzaSyA20r8IsvurS_CC9iUIjgej5s1H__o7kdg")
+    convert_dict = lambda x,y: {"lat": x, "lng": y}
     # Geocoding an address
-    geocode_result = gmaps.geocode('1600 Amphitheatre Parkway, Mountain View, CA')
+    # geocode_result = gmaps.geocode(str(user.))
 
     # Look up an address with reverse geocoding
-    reverse_geocode_result = gmaps.reverse_geocode((40.714224, -73.961452))
+    # reverse_geocode_result = gmaps.reverse_geocode((user.lat, user.long))
+    # reverse_geocode_result_2 = gmaps.reverse_geocode((r_user.lat, r_user.long))
 
     # Request directions via public transit
-    now = datetime.now()
-    directions_result = gmaps.directions("Sydney Town Hall",
-                                         "Parramatta, NSW",
-                                         mode="transit",
-                                         departure_time=now)
+    directions_result = gmaps.directions(convert_dict(user.lat, user.long),
+                                         convert_dict(r_user.lat, r_user.long),
+                                         mode="walking",
+                                         departure_time=datetime.now())

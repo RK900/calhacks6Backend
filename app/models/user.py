@@ -9,8 +9,8 @@ class User(db.Model):
     username = db.Column(db.String(140))
     phone_number = db.Column(db.String(140))
 
-    lat = db.Column(db.String(140))
-    lon = db.Column(db.String(140))
+    lat = db.Column(db.Float)
+    lon = db.Column(db.Float)
 
     def get_dic(self):
         return {
