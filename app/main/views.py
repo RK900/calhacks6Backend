@@ -90,11 +90,12 @@ def create_user():
         return jsonify({"id": -1, "status": 200})
     phone_number = data["phone_number"]
     user = User.query.filter_by(username=username).first()
-    if user:
-        db.session.delete(user)
-        db.session.commit()
-    user = User(username=username, phone_number=phone_number)
-
+    created_user = False
+    if not user:
+        # db.session.delete(user)
+        # db.session.commit()
+        user = User(username=username, phone_number=phone_number)
+        created_user = True
     rand_ind, gender = random.randint(0, 99), random.randint(0, 1)
     if gender == 1:
         url = "https://randomuser.me/api/portraits/thumb/men/" + str(rand_ind) + ".jpg"
@@ -102,8 +103,8 @@ def create_user():
         url = "https://randomuser.me/api/portraits/thumb/women/" + str(rand_ind) + ".jpg"
 
     user.image = url
-
-    db.session.add(user)
+    if created_user:
+        db.session.add(user)
     db.session.commit()
 
     return jsonify({"id": user.id, "status": 200})
