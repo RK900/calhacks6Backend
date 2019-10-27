@@ -61,7 +61,7 @@ def friends():
     data = request.json
     id = data["current_user_id"]
     current_user = User.query.get(id)
-    if not current_user:
+    if current_user is None:
         return jsonify({"friends": []})
     users = User.query.all()
     if "friends" in data:
@@ -71,7 +71,7 @@ def friends():
                                  "lat": user.lat,
                                  "lon": user.lon,
                                  "dist": haversine(current_user.lon, current_user.lat, user.lat, user.lon),
-                                 "image": user.image} for user in users if user.id != current_user.id]})
+                                 "image": user.image} for user in users if user and user.id != current_user.id]})
 
 
 @main.route("/create_user", methods=["POST", "GET"])
