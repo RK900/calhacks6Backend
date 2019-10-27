@@ -1,10 +1,10 @@
+from datetime import datetime
+
 from flask import jsonify, request
 
-from app import db
+from app import db, gmaps
 from app.main import main
 from app.models.user import User
-import googlemaps
-from datetime import datetime
 
 
 @main.route("/create_user", methods=["POST", "GET"])
@@ -62,7 +62,6 @@ def get_path():
     id = data["requested_user_id"]
     r_user = User.query.get(id=id)
 
-    gmaps = googlemaps.Client(key="AIzaSyA20r8IsvurS_CC9iUIjgej5s1H__o7kdg")
     convert_dict = lambda x, y: {"lat": x, "lng": y}
     directions_result = gmaps.directions(convert_dict(user.lat, user.long),
                                          convert_dict(r_user.lat, r_user.long),

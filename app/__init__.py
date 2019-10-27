@@ -1,6 +1,7 @@
 import logging
 import os
 
+import googlemaps
 from flask import Flask, render_template
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
@@ -14,6 +15,7 @@ migrate = Migrate()
 bcrypt = Bcrypt()
 cors = CORS()
 logger = logging.getLogger(__name__)
+gmaps = googlemaps.Client(key="AIzaSyA20r8IsvurS_CC9iUIjgej5s1H__o7kdg")
 
 
 def create_app(config_name=None, db_ref=None) -> Flask:
