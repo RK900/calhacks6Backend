@@ -3,6 +3,7 @@ import random
 from datetime import datetime
 
 from flask import jsonify, request
+from haversine import haversine
 
 from app import db, gmaps
 from app.main import main
@@ -70,7 +71,7 @@ def friends():
                                  "id": user.id,
                                  "lat": user.lat,
                                  "lon": user.lon,
-                                 "dist": haversine(current_user.lon, current_user.lat, user.lon, user.lat),
+                                 "dist": haversine((current_user.lat, current_user.lon), (user.lat, user.lon)),
                                  "image": user.image} for user in users if user and user.id != current_user.id]})
 
 
@@ -137,7 +138,7 @@ def request_user_loc():
     return {"requested_user_lat": requested_user.lat,
             "requested_user_long": requested_user.lon,
             "bearing": calc_bearing(user.lat, user.lon, requested_user.lat, requested_user.lon),
-            "dist": haversine(user.lon, user.lat, user.lon, user.lat), }
+            "dist": haversine((user.lat, user.lat), (requested_user.lat, requested_user.lon)), }
 
 
 @main.route("/get_path", methods=["POST"])
@@ -203,25 +204,3 @@ def calc_bearing(lat1, lon1, lat2, lon2):
     bearing = (math.degrees(math.atan2(dLong, dPhi)) + 360.0) % 360.0;
 
     return bearing
-
-
-from math import radians, cos, sin, asin, sqrt
-
-
-def haversine(lon1, lat1, lon2, lat2):
-    """
-    Calculate the great circle distance between two points
-    on the earth (specified in decimal degrees)
-    """
-    if lon1 is None or lat1 is None or lon2 is None or lat2 is None:
-        return -1
-    # convert decimal degrees to radians
-    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
-    # haversine formula
-    dlon = lon2 - lon1
-    dlat = lat2 - lat1
-    a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
-    c = 2 * asin(sqrt(a))
-    # Radius of earth in kilometers is 6371
-    km = 6371 * c
-    return km * 0.6213711999983
