@@ -1,13 +1,12 @@
 import math
+import random
 from datetime import datetime
 
-import requests
 from flask import jsonify, request
 
 from app import db, gmaps
 from app.main import main
 from app.models.user import User, Messages
-import random
 
 
 @main.route("/")
@@ -219,4 +218,4 @@ def haversine(lon1, lat1, lon2, lat2):
     c = 2 * asin(sqrt(a))
     # Radius of earth in kilometers is 6371
     km = 6371 * c
-    return km
+    return km / 1000
